@@ -1,0 +1,685 @@
+{% extends 'base.html' %}
+
+{% block title %}Join GreenSteps - Start Your Green Journey{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">🌱</div>
+            <h1>Join GreenSteps!</h1>
+            <p>Start your journey towards a more sustainable future today</p>
+        </div>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <div class="form-errors">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <div class="error-message">
+                                <span class="error-icon">⚠️</span>
+                                {% if field == '__all__' %}
+                                    {{ error }}
+                                {% else %}
+                                    <strong>{{ field|capfirst }}:</strong> {{ error }}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                        First Name <span class="required">*</span>
+                    </label>
+                    {{ form.first_name }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                        Last Name <span class="required">*</span>
+                    </label>
+                    {{ form.last_name }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}" class="form-label">
+                    Username <span class="required">*</span>
+                </label>
+                {{ form.username }}
+                <div class="help-text">This will be your unique identifier on GreenSteps</div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}" class="form-label">
+                    Email Address <span class="required">*</span>
+                </label>
+                {{ form.email }}
+                <div class="help-text">We'll use this to send you progress updates and tips</div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}" class="form-label">
+                    Password <span class="required">*</span>
+                </label>
+                <div class="password-input-wrapper">
+                    {{ form.password1 }}
+                    <button type="button" class="password-toggle" onclick="togglePassword('{{ form.password1.id_for_label }}', 'password1-toggle-icon')">
+                        <span id="password1-toggle-icon">👁️</span>
+                    </button>
+                </div>
+                <div class="password-requirements" id="password-requirements">
+                    <div class="requirement" id="req-length">
+                        <span class="req-icon">⭕</span>
+                        At least 8 characters long
+                    </div>
+                    <div class="requirement" id="req-not-common">
+                        <span class="req-icon">⭕</span>
+                        Not a commonly used password
+                    </div>
+                    <div class="requirement" id="req-not-personal">
+                        <span class="req-icon">⭕</span>
+                        Not too similar to your personal info
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}" class="form-label">
+                    Confirm Password <span class="required">*</span>
+                </label>
+                <div class="password-input-wrapper">
+                    {{ form.password2 }}
+                    <button type="button" class="password-toggle" onclick="togglePassword('{{ form.password2.id_for_label }}', 'password2-toggle-icon')">
+                        <span id="password2-toggle-icon">👁️</span>
+                    </button>
+                </div>
+                <div class="password-match" id="password-match" style="display: none;">
+                    <span class="match-icon">⭕</span>
+                    <span class="match-text">Passwords must match</span>
+                </div>
+            </div>
+
+            <div class="form-agreement">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="agree_terms" class="checkbox" required>
+                    <span class="checkmark"></span>
+                    I agree to the <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg auth-submit" id="submit-btn" disabled>
+                <span class="btn-icon">🚀</span>
+                Create My Account
+            </button>
+        </form>
+
+        <div class="auth-divider">
+            <span>or</span>
+        </div>
+
+        <div class="auth-footer">
+            <p>Already have an account?</p>
+            <a href="{% url 'login' %}" class="btn btn-secondary btn-lg">
+                <span class="btn-icon">🔑</span>
+                Sign In
+            </a>
+        </div>
+    </div>
+
+    <!-- Benefits Sidebar -->
+    <div class="benefits-sidebar">
+        <div class="benefits-card">
+            <h3>🎯 What you'll get with GreenSteps</h3>
+            <div class="benefits-list">
+                <div class="benefit-item">
+                    <div class="benefit-icon">📊</div>
+                    <div class="benefit-content">
+                        <h4>Smart Tracking</h4>
+                        <p>Easily log your daily activities and see their environmental impact</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">📈</div>
+                    <div class="benefit-content">
+                        <h4>Progress Analytics</h4>
+                        <p>Visualize your carbon footprint trends and celebrate improvements</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">💡</div>
+                    <div class="benefit-content">
+                        <h4>Personalized Tips</h4>
+                        <p>Get custom recommendations based on your lifestyle and goals</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">🏆</div>
+                    <div class="benefit-content">
+                        <h4>Achievement System</h4>
+                        <p>Earn badges and milestones as you progress on your green journey</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonial-card">
+            <div class="testimonial-content">
+                <p>"GreenSteps helped me reduce my carbon footprint by 30% in just 3 months. The insights are amazing!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">👩‍🌾</div>
+                    <div class="author-info">
+                        <strong>Sarah Chen</strong>
+                        <span>Environmental Advocate</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePassword(inputId, iconId) {
+    const passwordInput = document.getElementById(inputId);
+    const toggleIcon = document.getElementById(iconId);
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.textContent = '🙈';
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.textContent = '👁️';
+    }
+}
+
+function validatePassword() {
+    const password = document.getElementById('{{ form.password1.id_for_label }}').value;
+    const username = document.getElementById('{{ form.username.id_for_label }}').value;
+    const firstName = document.getElementById('{{ form.first_name.id_for_label }}').value;
+    const lastName = document.getElementById('{{ form.last_name.id_for_label }}').value;
+
+    // Length requirement
+    const lengthReq = document.getElementById('req-length');
+    const lengthIcon = lengthReq.querySelector('.req-icon');
+    if (password.length >= 8) {
+        lengthIcon.textContent = '✅';
+        lengthReq.classList.add('met');
+    } else {
+        lengthIcon.textContent = '⭕';
+        lengthReq.classList.remove('met');
+    }
+
+    // Common password check (simplified)
+    const commonPasswords = ['password', '12345678', 'qwerty', 'abc123', 'password123'];
+    const commonReq = document.getElementById('req-not-common');
+    const commonIcon = commonReq.querySelector('.req-icon');
+    if (!commonPasswords.includes(password.toLowerCase()) && password.length > 0) {
+        commonIcon.textContent = '✅';
+        commonReq.classList.add('met');
+    } else if (password.length > 0) {
+        commonIcon.textContent = '❌';
+        commonReq.classList.remove('met');
+    } else {
+        commonIcon.textContent = '⭕';
+        commonReq.classList.remove('met');
+    }
+
+    // Personal info check
+    const personalReq = document.getElementById('req-not-personal');
+    const personalIcon = personalReq.querySelector('.req-icon');
+    const personalInfo = [username, firstName, lastName].filter(info => info.length > 2);
+    const containsPersonalInfo = personalInfo.some(info =>
+        password.toLowerCase().includes(info.toLowerCase())
+    );
+
+    if (!containsPersonalInfo && password.length > 0) {
+        personalIcon.textContent = '✅';
+        personalReq.classList.add('met');
+    } else if (containsPersonalInfo) {
+        personalIcon.textContent = '❌';
+        personalReq.classList.remove('met');
+    } else {
+        personalIcon.textContent = '⭕';
+        personalReq.classList.remove('met');
+    }
+}
+
+function validatePasswordMatch() {
+    const password1 = document.getElementById('{{ form.password1.id_for_label }}').value;
+    const password2 = document.getElementById('{{ form.password2.id_for_label }}').value;
+    const matchIndicator = document.getElementById('password-match');
+    const matchIcon = matchIndicator.querySelector('.match-icon');
+    const matchText = matchIndicator.querySelector('.match-text');
+
+    if (password2.length > 0) {
+        matchIndicator.style.display = 'flex';
+        if (password1 === password2) {
+            matchIcon.textContent = '✅';
+            matchText.textContent = 'Passwords match!';
+            matchIndicator.classList.add('match');
+            matchIndicator.classList.remove('no-match');
+        } else {
+            matchIcon.textContent = '❌';
+            matchText.textContent = 'Passwords do not match';
+            matchIndicator.classList.add('no-match');
+            matchIndicator.classList.remove('match');
+        }
+    } else {
+        matchIndicator.style.display = 'none';
+    }
+}
+
+function checkFormValidity() {
+    const requiredFields = [
+        '{{ form.first_name.id_for_label }}',
+        '{{ form.last_name.id_for_label }}',
+        '{{ form.username.id_for_label }}',
+        '{{ form.email.id_for_label }}',
+        '{{ form.password1.id_for_label }}',
+        '{{ form.password2.id_for_label }}'
+    ];
+
+    const allFieldsFilled = requiredFields.every(fieldId => {
+        const field = document.getElementById(fieldId);
+        return field && field.value.trim().length > 0;
+    });
+
+    const password1 = document.getElementById('{{ form.password1.id_for_label }}').value;
+    const password2 = document.getElementById('{{ form.password2.id_for_label }}').value;
+    const passwordsMatch = password1 === password2;
+    const passwordLongEnough = password1.length >= 8;
+
+    const termsAgreed = document.querySelector('input[name="agree_terms"]').checked;
+
+    const submitBtn = document.getElementById('submit-btn');
+    const isValid = allFieldsFilled && passwordsMatch && passwordLongEnough && termsAgreed;
+
+    submitBtn.disabled = !isValid;
+    if (isValid) {
+        submitBtn.classList.add('ready');
+    } else {
+        submitBtn.classList.remove('ready');
+    }
+}
+
+// Initialize form validation
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners
+    const password1Input = document.getElementById('{{ form.password1.id_for_label }}');
+    const password2Input = document.getElementById('{{ form.password2.id_for_label }}');
+    const usernameInput = document.getElementById('{{ form.username.id_for_label }}');
+    const firstNameInput = document.getElementById('{{ form.first_name.id_for_label }}');
+    const lastNameInput = document.getElementById('{{ form.last_name.id_for_label }}');
+    const emailInput = document.getElementById('{{ form.email.id_for_label }}');
+    const termsCheckbox = document.querySelector('input[name="agree_terms"]');
+
+    // Password validation
+    password1Input.addEventListener('input', () => {
+        validatePassword();
+        validatePasswordMatch();
+        checkFormValidity();
+    });
+
+    password2Input.addEventListener('input', () => {
+        validatePasswordMatch();
+        checkFormValidity();
+    });
+
+    // Personal info validation
+    [usernameInput, firstNameInput, lastNameInput].forEach(input => {
+        input.addEventListener('input', () => {
+            validatePassword();
+            checkFormValidity();
+        });
+    });
+
+    emailInput.addEventListener('input', checkFormValidity);
+    termsCheckbox.addEventListener('change', checkFormValidity);
+
+    // Focus first input
+    firstNameInput.focus();
+
+    // Animate benefits
+    const benefitItems = document.querySelectorAll('.benefit-item');
+    benefitItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(20px)';
+        item.style.transition = 'all 0.6s ease';
+
+        setTimeout(() => {
+            item.style.opacity = '1';
+            item.style.transform = 'translateX(0)';
+        }, 200 * (index + 1));
+    });
+});
+</script>
+
+<style>
+.auth-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-12);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-8);
+    min-height: 80vh;
+    align-items: start;
+}
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-12);
+    box-shadow: var(--shadow-xl);
+    animation: slideInLeft 0.6s ease-out;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+}
+
+.auth-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-4);
+    animation: gentle-bounce 2s ease-in-out infinite;
+}
+
+.auth-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: var(--space-3);
+}
+
+.auth-header p {
+    color: var(--gray-600);
+    font-size: 1.125rem;
+}
+
+.auth-form {
+    margin-bottom: var(--space-8);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+
+.form-group {
+    margin-bottom: var(--space-6);
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: var(--space-2);
+    font-size: 0.875rem;
+}
+
+.required {
+    color: var(--red-500);
+}
+
+.help-text {
+    margin-top: var(--space-2);
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+.password-requirements {
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+}
+
+.requirement {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    transition: color 0.2s ease;
+}
+
+.requirement:last-child {
+    margin-bottom: 0;
+}
+
+.requirement.met {
+    color: var(--emerald-600);
+}
+
+.req-icon {
+    font-size: 0.875rem;
+}
+
+.password-match {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.password-match.match {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--emerald-600);
+    border: 1px solid var(--emerald-200);
+}
+
+.password-match.no-match {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--red-600);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.form-agreement {
+    margin-bottom: var(--space-8);
+    padding: var(--space-4);
+    background: var(--emerald-50);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--emerald-200);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    cursor: pointer;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.checkbox {
+    margin-top: 2px;
+}
+
+.link {
+    color: var(--emerald-600);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.auth-submit {
+    width: 100%;
+    margin-bottom: var(--space-6);
+    transition: all 0.3s ease;
+}
+
+.auth-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.auth-submit.ready {
+    background: linear-gradient(135deg, var(--emerald-500), var(--teal-500));
+    box-shadow: var(--shadow-lg);
+}
+
+.auth-submit.ready:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+}
+
+.benefits-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    animation: slideInRight 0.6s ease-out;
+}
+
+.benefits-card, .testimonial-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.3s ease;
+}
+
+.benefits-card:hover, .testimonial-card:hover {
+    transform: translateY(-5px);
+}
+
+.benefits-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: var(--space-6);
+    text-align: center;
+}
+
+.benefits-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.benefit-item {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+}
+
+.benefit-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-top: var(--space-1);
+}
+
+.benefit-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: var(--space-1);
+}
+
+.benefit-content p {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    line-height: 1.5;
+}
+
+.testimonial-content {
+    text-align: center;
+}
+
+.testimonial-content p {
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--gray-700);
+    margin-bottom: var(--space-6);
+    line-height: 1.6;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+}
+
+.author-avatar {
+    font-size: 2rem;
+}
+
+.author-info {
+    text-align: left;
+}
+
+.author-info strong {
+    display: block;
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.author-info span {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+        gap: var(--space-8);
+    }
+
+    .benefits-sidebar {
+        order: -1;
+    }
+
+    .benefits-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--space-4);
+    }
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-card {
+        padding: var(--space-8);
+    }
+
+    .benefits-card, .testimonial-card {
+        padding: var(--space-6);
+    }
+
+    .benefits-list {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

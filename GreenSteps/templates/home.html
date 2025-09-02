@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load math_filters %}
+
+{% block content %}
+<div class="hero-section">
+    {% if not user.is_authenticated %}
+        <!-- Landing Page for Non-authenticated Users -->
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    Track Your <span class="text-gradient">Carbon Footprint</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Make every step count towards a greener future. Track your daily activities and discover how small changes create big environmental impact.
+                </p>
+                <div class="hero-actions">
+                    <a href="{% url 'register' %}" class="btn btn-primary hero-btn">
+                        🌱 Start Your Journey
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-secondary hero-btn">
+                        🔑 Sign In
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="floating-cards">
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Smart Tracking</h3>
+                        <p>Log daily activities with automatic CO₂ calculations</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📈</div>
+                        <h3>Progress Insights</h3>
+                        <p>Visualize your environmental impact over time</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💡</div>
+                        <h3>Personalized Tips</h3>
+                        <p>Get custom recommendations to reduce your footprint</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+                <!-- Features Section -->
+        <section class="features-section">
+            <div class="section-header">
+                <h2>Why Choose GreenSteps?</h2>
+                <p>Simple, effective tools for sustainable living</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon-large">🚗</div>
+                    <h3>Transportation Tracking</h3>
+                    <p>Monitor your commute, flights, and daily travel with accurate emission calculations.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon-large">⚡</div>
+                    <h3>Energy Usage</h3>
+                    <p>Track your home energy consumption and discover ways to reduce your carbon impact.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon-large">🍽️</div>
+                    <h3>Food Choices</h3>
+                    <p>Understand the environmental impact of your diet and make informed food decisions.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon-large">💻</div>
+                    <h3>Digital Footprint</h3>
+                    <p>Track your digital activities and learn how technology affects the environment.</p>
+                </div>
+            </div>
+        </section>
+        
+    {% else %}
+        <!-- Dashboard Preview for Authenticated Users -->
+        <div class="dashboard-preview">
+            <div class="welcome-section">
+                <h1 class="welcome-title">Welcome back, {{ user.first_name|default:user.username }}! 👋</h1>
+                <p class="welcome-subtitle">Here's your environmental impact summary</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card today">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-content">
+                        <h3>Today's Emissions</h3>
+                        <div class="stat-value">{{ today_emissions|floatformat:1 }} <span>kg CO₂</span></div>
+                        <div class="stat-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ goal_percentage|floatformat:0 }}%"></div>
+                            </div>
+                            <span class="progress-text">{{ goal_percentage|floatformat:0 }}% of daily goal</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card week">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3>This Week</h3>
+                        <div class="stat-value">{{ week_emissions|floatformat:1 }} <span>kg CO₂</span></div>
+                        <div class="stat-subtitle">{{ week_emissions|floatformat:1 }} kg total emissions</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card goal">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-content">
+                        <h3>Daily Goal</h3>
+                        <div class="stat-value">{{ daily_goal|floatformat:0 }} <span>kg CO₂</span></div>
+                        <div class="stat-subtitle">
+                            {% if today_emissions <= daily_goal %}
+                                <span class="text-green-600">✅ Goal achieved!</span>
+                            {% else %}
+                                <span class="text-amber-600">{{ over_goal|floatformat:1 }} kg over goal</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <a href="{% url 'add_activity' %}" class="action-btn primary">
+                        <span class="action-icon">➕</span>
+                        <div class="action-text">
+                            <strong>Log Activity</strong>
+                            <small>Add today's emissions</small>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'dashboard' %}" class="action-btn">
+                        <span class="action-icon">📈</span>
+                        <div class="action-text">
+                            <strong>View Dashboard</strong>
+                            <small>See detailed analytics</small>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'tips' %}" class="action-btn">
+                        <span class="action-icon">💡</span>
+                        <div class="action-text">
+                            <strong>Get Tips</strong>
+                            <small>Personalized suggestions</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Call to Action Section -->
+{% if not user.is_authenticated %}
+<section class="cta-section">
+    <div class="cta-content">
+        <h2>Ready to Make a Difference?</h2>
+        <p>Join thousands of people taking action for our planet</p>
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+            🌍 Start Tracking Today
+        </a>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

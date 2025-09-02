@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Activity - GreenSteps{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1>🌱 Add New Activity</h1>
+        <p>Track your daily activities to calculate their environmental impact</p>
+    </div>
+
+    <form method="post" class="activity-form">
+        {% csrf_token %}
+
+        <div class="form-section">
+            <div class="form-group">
+                <label for="{{ form.emission_factor.id_for_label }}" class="form-label">
+                    What did you do?
+                    <span class="required">*</span>
+                </label>
+                {{ form.emission_factor }}
+                {% if form.emission_factor.help_text %}
+                    <div class="help-text">{{ form.emission_factor.help_text }}</div>
+                {% endif %}
+                {% if form.emission_factor.errors %}
+                    <div class="error-text">{{ form.emission_factor.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.quantity.id_for_label }}" class="form-label">
+                    How much?
+                    <span class="required">*</span>
+                </label>
+                {{ form.quantity }}
+                <div class="help-text" id="quantity-help">
+                    Amount will depend on the activity selected
+                </div>
+                {% if form.quantity.errors %}
+                    <div class="error-text">{{ form.quantity.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.date.id_for_label }}" class="form-label">
+                    When?
+                    <span class="required">*</span>
+                </label>
+                {{ form.date }}
+                {% if form.date.errors %}
+                    <div class="error-text">{{ form.date.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.notes.id_for_label }}" class="form-label">
+                    Notes (optional)
+                </label>
+                {{ form.notes }}
+                {% if form.notes.help_text %}
+                    <div class="help-text">{{ form.notes.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- CO2 Estimate Display -->
+        <div class="co2-estimate" id="co2-estimate" style="display: none;">
+            <div class="estimate-header">
+                <span class="estimate-icon">🌍</span>
+                <h3>Estimated CO₂ Impact</h3>
+            </div>
+            <div class="estimate-value" id="estimate-value">
+                0.0 kg CO₂
+            </div>
+            <div class="estimate-context" id="estimate-context">
+                Select an activity to see its environmental impact
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <span class="btn-icon">✅</span>
+                Save Activity
+            </button>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+
+    <!-- Quick Add Buttons -->
+    <div class="quick-add-section">
+        <h3>💨 Quick Add Common Activities</h3>
+        <div class="quick-add-grid">
+            <button class="quick-add-btn" data-activity="Car trip" data-unit="km" data-factor="0.21">
+                🚗 Car Trip
+                <small>per km</small>
+            </button>
+            <button class="quick-add-btn" data-activity="Bus trip" data-unit="km" data-factor="0.089">
+                🚌 Bus Trip
+                <small>per km</small>
+            </button>
+            <button class="quick-add-btn" data-activity="Electricity" data-unit="kWh" data-factor="0.5">
+                ⚡ Electricity
+                <small>per kWh</small>
+            </button>
+            <button class="quick-add-btn" data-activity="Meat meal" data-unit="meal" data-factor="2.5">
+                🍖 Meat Meal
+                <small>per meal</small>
+            </button>
+            <button class="quick-add-btn" data-activity="Vegetarian meal" data-unit="meal" data-factor="0.9">
+                🥗 Veggie Meal
+                <small>per meal</small>
+            </button>
+            <button class="quick-add-btn" data-activity="Video streaming" data-unit="hour" data-factor="0.036">
+                📺 Streaming
+                <small>per hour</small>
+            </button>
+        </div>
+    </div>
+
+    <!-- Activity Categories Info -->
+    <div class="categories-info">
+        <h3>📋 Activity Categories</h3>
+        <div class="categories-grid">
+            <div class="category-card transport">
+                <div class="category-icon">🚗</div>
+                <h4>Transportation</h4>
+                <p>Cars, buses, flights, trains, and other travel methods</p>
+            </div>
+            <div class="category-card energy">
+                <div class="category-icon">⚡</div>
+                <h4>Energy</h4>
+                <p>Electricity, heating, cooling, and home energy usage</p>
+            </div>
+            <div class="category-card food">
+                <div class="category-icon">🍽️</div>
+                <h4>Food</h4>
+                <p>Meals, groceries, and dietary choices</p>
+            </div>
+            <div class="category-card digital">
+                <div class="category-icon">💻</div>
+                <h4>Digital</h4>
+                <p>Internet usage, streaming, and digital activities</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emissionFactorSelect = document.getElementById('{{ form.emission_factor.id_for_label }}');
+    const quantityInput = document.getElementById('{{ form.quantity.id_for_label }}');
+    const co2Estimate = document.getElementById('co2-estimate');
+    const estimateValue = document.getElementById('estimate-value');
+    const estimateContext = document.getElementById('estimate-context');
+    const quantityHelp = document.getElementById('quantity-help');
+
+    // Emission factors data (this would typically come from the backend)
+    const emissionFactors = {
+        {% comment %} This would be populated from the database {% endcomment %}
+    };
+
+    // Update CO2 estimate when activity or quantity changes
+    function updateEstimate() {
+        const selectedOption = emissionFactorSelect.selectedOptions[0];
+        const quantity = parseFloat(quantityInput.value) || 0;
+
+        if (selectedOption && selectedOption.value && quantity > 0) {
+            const activityText = selectedOption.text;
+            const co2Factor = parseFloat(selectedOption.dataset.co2Factor) || 0;
+            const unit = selectedOption.dataset.unit || 'unit';
+
+            const totalCO2 = quantity * co2Factor;
+
+            co2Estimate.style.display = 'block';
+            estimateValue.textContent = `${totalCO2.toFixed(2)} kg CO₂`;
+
+            // Update context based on emission level
+            if (totalCO2 < 1) {
+                estimateContext.textContent = '🟢 Low impact activity - great choice!';
+                estimateContext.className = 'estimate-context low';
+            } else if (totalCO2 < 5) {
+                estimateContext.textContent = '🟡 Moderate impact - consider alternatives when possible';
+                estimateContext.className = 'estimate-context medium';
+            } else {
+                estimateContext.textContent = '🔴 High impact activity - explore greener options';
+                estimateContext.className = 'estimate-context high';
+            }
+
+            quantityHelp.textContent = `Enter amount in ${unit}`;
+        } else {
+            co2Estimate.style.display = 'none';
+        }
+    }
+
+    // Event listeners
+    emissionFactorSelect.addEventListener('change', function() {
+        updateEstimate();
+
+        // Update quantity placeholder based on selected activity
+        const selectedOption = this.selectedOptions[0];
+        if (selectedOption && selectedOption.value) {
+            const unit = selectedOption.dataset.unit || 'units';
+            quantityInput.placeholder = `Enter amount in ${unit}`;
+            quantityInput.focus();
+        }
+    });
+
+    quantityInput.addEventListener('input', updateEstimate);
+
+    // Quick add button functionality
+    document.querySelectorAll('.quick-add-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const activity = this.dataset.activity;
+            const unit = this.dataset.unit;
+            const factor = this.dataset.factor;
+
+            // Find and select the corresponding option
+            for (let option of emissionFactorSelect.options) {
+                if (option.text.toLowerCase().includes(activity.toLowerCase())) {
+                    emissionFactorSelect.value = option.value;
+                    option.dataset.unit = unit;
+                    option.dataset.co2Factor = factor;
+                    break;
+                }
+            }
+
+            // Set a default quantity
+            quantityInput.value = '1';
+            quantityInput.placeholder = `Enter amount in ${unit}`;
+
+            // Update estimate
+            updateEstimate();
+
+            // Scroll to form
+            document.querySelector('.activity-form').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        });
+    });
+
+    // Form validation
+    document.querySelector('.activity-form').addEventListener('submit', function(e) {
+        if (!emissionFactorSelect.value) {
+            e.preventDefault();
+            alert('Please select an activity');
+            emissionFactorSelect.focus();
+            return;
+        }
+
+        if (!quantityInput.value || quantityInput.value <= 0) {
+            e.preventDefault();
+            alert('Please enter a valid quantity');
+            quantityInput.focus();
+            return;
+        }
+    });
+});
+</script>
+{% endblock %}

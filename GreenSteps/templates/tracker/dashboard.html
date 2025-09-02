@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - GreenSteps{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Your Carbon Footprint Dashboard</h1>
+        <p>Track your environmental impact and progress towards your goals</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <div class="summary-card today">
+            <div class="card-header">
+                <h3>Today's Impact</h3>
+                <span class="card-icon">📅</span>
+            </div>
+            <div class="card-value">{{ today_emissions }} kg CO₂</div>
+            <div class="card-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ today_emissions|div:profile.daily_goal|mul:100|floatformat:0 }}%"></div>
+                </div>
+                <span class="progress-label">
+                    {% if today_emissions <= profile.daily_goal %}
+                        ✅ Under your daily goal
+                    {% else %}
+                        ⚠️ {{ today_emissions|sub:profile.daily_goal|floatformat:1 }} kg over goal
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="summary-card week">
+            <div class="card-header">
+                <h3>This Week</h3>
+                <span class="card-icon">📊</span>
+            </div>
+            <div class="card-value">{{ week_emissions }} kg CO₂</div>
+            <div class="card-subtitle">
+                Average: {{ week_emissions|div:7|floatformat:1 }} kg/day
+            </div>
+        </div>
+
+        <div class="summary-card goal">
+            <div class="card-header">
+                <h3>Daily Goal</h3>
+                <span class="card-icon">🎯</span>
+            </div>
+            <div class="card-value">{{ profile.daily_goal }} kg CO₂</div>
+            <div class="card-subtitle">Target per day</div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Weekly Emissions Trend</h3>
+                <p>Your daily CO₂ emissions over the past week</p>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="weeklyChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Emissions by Category</h3>
+                <p>Breakdown of your carbon footprint</p>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="categoryChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="recent-activities">
+        <div class="section-header">
+            <h3>Recent Activities</h3>
+            <a href="{% url 'activities_list' %}" class="view-all-link">View All →</a>
+        </div>
+
+        {% if recent_activities %}
+            <div class="activities-list">
+                {% for activity in recent_activities %}
+                    <div class="activity-item">
+                        <div class="activity-info">
+                            <div class="activity-name">{{ activity.emission_factor.name }}</div>
+                            <div class="activity-details">
+                                {{ activity.quantity }} {{ activity.emission_factor.unit }} • {{ activity.date|date:"M d" }}
+                            </div>
+                        </div>
+                        <div class="activity-emissions">
+                            {{ activity.co2_emissions|floatformat:2 }} kg CO₂
+                        </div>
+                        <div class="activity-category category-{{ activity.emission_factor.category }}">
+                            {{ activity.emission_factor.get_category_display }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <h4>No activities yet</h4>
+                <p>Start tracking your carbon footprint by logging your first activity.</p>
+                <a href="{% url 'add_activity' %}" class="btn btn-primary">Add Your First Activity</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Tips -->
+    <div class="quick-tips">
+        <div class="tips-header">
+            <h3>💡 Today's Eco Tip</h3>
+        </div>
+        <div class="tip-content">
+            <p id="daily-tip">Loading personalized tip...</p>
+            <a href="{% url 'tips' %}" class="tips-link">Get More Tips →</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Weekly emissions chart
+    const weeklyData = {{ weekly_data|safe }};
+    const ctx1 = document.getElementById('weeklyChart').getContext('2d');
+
+    new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: weeklyData.map(d => d.date),
+            datasets: [{
+                label: 'Daily CO₂ Emissions (kg)',
+                data: weeklyData.map(d => d.emissions),
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#10b981',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                        color: '#6b7280'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#6b7280'
+                    }
+                }
+            }
+        }
+    });
+
+    // Category breakdown chart
+    const categoryData = {{ category_data|safe }};
+    if (categoryData.length > 0) {
+        const ctx2 = document.getElementById('categoryChart').getContext('2d');
+
+        const colors = {
+            'Transport': '#ef4444',
+            'Energy': '#f59e0b',
+            'Food': '#10b981',
+            'Digital': '#8b5cf6'
+        };
+
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: categoryData.map(d => d.category),
+                datasets: [{
+                    data: categoryData.map(d => d.total),
+                    backgroundColor: categoryData.map(d => colors[d.category] || '#6b7280'),
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            color: '#6b7280'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Random daily tip
+    const tips = [
+        "Try walking or biking for trips under 2km to reduce transportation emissions.",
+        "Unplug electronics when not in use - they consume energy even when off.",
+        "Consider having one meat-free day per week to reduce your food footprint.",
+        "Use video calls instead of traveling for meetings when possible.",
+        "Switch to LED bulbs to reduce energy consumption by up to 80%.",
+        "Buy local produce to reduce transportation-related emissions.",
+        "Use public transport or carpool to significantly reduce your carbon footprint."
+    ];
+
+    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+    document.getElementById('daily-tip').textContent = randomTip;
+});
+</script>
+{% endblock %}
