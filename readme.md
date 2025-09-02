@@ -359,7 +359,6 @@ SOFTWARE.
 - 💼 **LinkedIn**: [linkedin.com/in/ammar-elbedweihy](https://linkedin.com/in/ammar-elbedweihy)
 - 📧 **Email**: ammar.elbedweihy@example.com
 - 🐙 **GitHub**: [github.com/ammarelbedweihy](https://github.com/ammarelbedweihy)
-- 🌐 **Portfolio**: [ammarelbedweihy.dev](https://ammarelbedweihy.dev)
 
 ### 📬 **Get In Touch**
 - 🐛 **Bug Reports**: Open an issue on GitHub
